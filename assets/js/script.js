@@ -1,3 +1,4 @@
+var pageContentEl = document.querySelector('#page-content');
 var taskIdCounter = 0;
 var formEl = document.querySelector('#task-form');
 var tasksToDoEl = document.querySelector('#tasks-to-do');
@@ -9,13 +10,13 @@ var taskFormHandler = function(event) {
   if (!taskNameInput || !taskTypeInput) {
     alert("You need to fill out the task form!");
     return false;
-  };
+  }
   formEl.reset();
   // package up data as an object
   var taskDataObj = {
     name: taskNameInput,
     type: taskTypeInput
-  };
+  }
   // send it as an argument to createTaskEl
   createTaskEl(taskDataObj);
 };
@@ -68,7 +69,38 @@ var createTaskActions = function(taskId) {
     statusOptionEl.setAttribute('value', statusChoices[i]);
     // append to select
     statusSelectEl.appendChild(statusOptionEl);
-  };
+  }
   return actionContainerE1;
 };
 formEl.addEventListener('submit', taskFormHandler);
+var taskButtonHandler = function(event) {
+  // get target element from event
+  var targetEl = event.target;
+  // edit button was clicked
+  if (targetEl.matches('.edit-btn')) {
+    var taskId = targetEl.getAttribute('data-task-id');
+    editTask(taskId);
+  }
+  // delete button was clicked
+  else if (targetEl.matches('.delete-btn')) {
+    var taskId = targetEl.getAttribute('data-task-id');
+    deleteTask(taskId);
+  }
+};
+var editTask = function(taskId) {
+  // get task list item element
+  var taskSelected = document.querySelector('.task-item[data-task-id="' + taskId + '"]');
+  // get content from task name and type
+  var taskName = taskSelected.querySelector('h3.task-name').textContent;
+  var taskType = taskSelected.querySelector('span.task-type').textContent;
+  document.querySelector('input[name="task-name"]').value = taskName;
+  document.querySelector('select[name="task-type"]').value = taskType;
+  document.querySelector("#save-task").textContent = "Save Task";
+  formEl.setAttribute("data-task-id", taskId);
+};
+var deleteTask = function(taskId) {
+  // notice that there's no space between the .task-item and the [data-task-id] attribute, which means that both properties must be on the same element; a space would look for a element with the [data-task-id] attribute somewhere inside a .task-item element.
+  var taskSelected = document.querySelector('.task-item[data-task-id="' + taskId + '"]');
+  taskSelected.remove();
+};
+pageContentEl.addEventListener('click', taskButtonHandler);
